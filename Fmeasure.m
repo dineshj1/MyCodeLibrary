@@ -1,4 +1,5 @@
 function [Fscore Prec Rec TP TN FP FN] = Fmeasure(prediction, truth, k)
+
   % Check that predictions and truth have the same length
   assert(length(prediction)==length(truth));
 

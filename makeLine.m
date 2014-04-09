@@ -1,4 +1,7 @@
 function makeLine(txt, character, numTimes, numWhiteLines)
+  if nargin<1
+      txt='';
+  end
   if nargin<2
     character='=';
   end

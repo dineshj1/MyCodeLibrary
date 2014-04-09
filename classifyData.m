@@ -1,51 +1,47 @@
-function res = classifyData(model, Data, targetCol) 
-% res is a structure containing 
-% res.pred, res.conf
-% and the evaluations
-    predfoo=@liblin_predict;
-    args=' -q';
-    [res.pred tmp decval]=predfoo(Data.Y(:,targetCol), sparse(Data.X), model, args); 
-    if model.Label(1)==0 % checking the internal label assignment for the model to determine sign of the decision values
-        if size(decval,2)==1
-          res.conf=-decval;
-        elseif size(decval,2)==2
-          res.conf=decval(:,2);
-        else
-          abort;
-        end
-    else
-        if size(decval,2)==1
-          res.conf=decval;
-        elseif size(decval,2)==2
-          res.conf=decval(:,1);
-        else
-          abort;
-        end
-    end
-   if size(Data.Y,1)>1 % need to check, especially for the hard data
+function res = classifyData(model, Data, targetCol, predfoo) 
+  % res is a binClassRes instance
+  res=binClassRes;
+  if nargin<4
+    predfoo=@liblin_predict_wrap; % other predfoos must also have the same interface as liblin_predict to be compatible
+  end
+
+  % making inputFormat argument unnecessary (because we can just look at the function itself) - to remove once we have corrected all calling instances (mainly in stagedLearning.m)
+  args=[];
+  [res.pred, ~, res.conf]=predfoo(Data.Y(:,targetCol), Data.X, model, args); 
+  
+
+  if size(Data.Y,1)>1 % need to check, especially for the hard data
     % Accuracy
     res.acc=sum(res.pred==Data.Y(:,targetCol))/length(res.pred)*100;
     % Fscore
     [res.Fscore res.Prec res.Rec res.TP res.TN res.FP res.FN]=Fmeasure(res.pred, Data.Y(:,targetCol));
     % Precision-Recall and ROC curves
     lTe=Data.Y(:,targetCol);
-    lTe(lTe==0) = -1; % vlfeat syntax
-    try 
-      [res.recall, res.prec, info_pr] = vl_pr(lTe, res.conf);
-    catch
-      tmp=0;%dummy code for debugging
+
+%% outdated code reintroduced for the sake of comparison    
+%lTe(lTe==0) = -1; % vlfeat syntax
+%[res.reca_old, res.prec_old, info_pr] = vl_pr(lTe, res.conf);
+%res.ap_old=info_pr.ap;
+%[res.tpr_old, res.tnr_old, info_roc] = vl_roc(lTe, res.conf);
+%res.auroc_old=info_roc.auc;
+   
+    try
+      [res.misc.reca, res.misc.prec,~,res.AP]=perfcurve(lTe,res.conf,1, 'xCrit', 'reca', 'yCrit', 'prec');
+      [res.misc.fpr,res.misc.tpr,~,res.AUC]=perfcurve(lTe,res.conf,1, 'xCrit', 'FPR', 'yCrit', 'TPR');
+    catch err
+      getReport(err)
+      if length(unique(lTe))<2
+        [res.misc.reca, res.misc.prec, res.misc.fpr,res.misc.tpr]=deal(0);
+        res.AP=0.5;
+        res.AUC=0.5;
+        clear lTe;    
+      else
+        fprintf('Unknown error!');  
+        abort
+      end
     end
-    [res.tpr, res.fpr, info_roc] = vl_roc(lTe, res.conf);
-    clear lTe;
-    res.ap=info_pr.ap;
-    if isnan(res.ap)
-        warning('True labels do not have both positives and negatives');      
-        res.ap=0;
-    end
-    res.auroc=info_roc.auc;
-    %assert(isequal(res.recall, res.tpr));  
-  else
-    [res.acc res.Fscore res.Prec res.Rec res.TP res.TN res.FP res.FN res.recall res.prec res.recall res.tpr res.fpr res.ap res.auroc] = deal(0);
+  else      
+    [res.acc res.Fscore res.Prec res.Rec res.TP res.TN res.FP res.FN res.misc.reca res.misc.prec res.misc.fpr res.misc.tpr res.AP res.AUC] = deal(0);
   end
 end 
  
