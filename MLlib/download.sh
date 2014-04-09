@@ -6,3 +6,7 @@ rm -rf !$/.git
 
 git clone --depth=1  https://github.com/shogun-toolbox/shogun.git  shogun/  
 rm -rf !$/.git      
+
+git clone --depth=1  https://github.com/scikit-learn/scikit-learn.git scikit-learn/  
+rm -rf !$/.git      
+ 
