@@ -2,5 +2,9 @@
 *.mex*
 *.mat
 *.exe
+*.jpg
+*.png
+*.gif
+*.*orig
 LabelMeToolbox/
 MLlib/
