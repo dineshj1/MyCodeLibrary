@@ -1,3 +1,6 @@
-*/*
-!MyCodeTemplates/*
 *.sw[nop]
+*.mex*
+*.mat
+*.exe
+LabelMeToolbox/
+MLlib/
