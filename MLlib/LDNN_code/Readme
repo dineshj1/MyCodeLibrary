@@ -1,0 +1,19 @@
+==================================================================
+The programs and documents are distributed without any warranty.
+All use of these programs is entirely at the user's own risk.
+You can use this package for research purposes.
+For commercial purposes please contact the authors.
+================================================================== 
+
+This is an example code for LDNN classifier described in:
+
+"Image Segmentation with Cascaded Hierarchical Models and Logistic Disjunctive
+Normal Networks", ICCV 2013.
+
+The source code and precompiled binaries for different platforms are available here.
+-If you want to compile the mex files use “compile.m” script available in the package.
+-We integrated the kmeans function of the berkley vision group for clustering.
+-”LDNN_train.m” is the main function for training the classifier and “LDNN_predict.m” is the main function for testing the classifier.
+-You can use “demo.m” to run some examples.
+
+Email mseyed@sci.utah.edu or mehdi@sci.utah.edu for bugs/questions.
